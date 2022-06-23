@@ -1,16 +1,12 @@
-@php
-    
-
-{{ LARAVEL guide }}
-
+{{ LARAVEL starter kit guide by DCS }}
 =============================================================================================
 @routes : web.php
 
-Route::get('/, function(){
-    return view('welcome', [
-        "title" => "homepage"
-    ])
-}')
+    Route::get('/, function(){
+        return view('welcome', [
+            "title" => "homepage"
+        ])
+    }')
 
 
 =============================================================================================
@@ -22,52 +18,53 @@ isi bagian html msing2
     footer.php
 
 ----------------------------------------------------------------
-    main.blade.php
--file badan utama yng terdiri dari template diatas
+main.blade.php
 
-@include('dashboard.layouts.header')
-@include('dashboard.layouts.navbar')
+    *file badan utama yng terdiri dari template diatas
+    @include('dashboard.layouts.header')
+    @include('dashboard.layouts.navbar')
 
--panggil isi halaman berbeda
-@yield('container')
+    *panggil isi halaman berbeda
+    @yield('container')
 
-@include('dashboard.layouts.footer')
+    @include('dashboard.layouts.footer')
 
 ----------------------------------------------------------------
-    index.php
--panggil file main
-@extends('dashboard.layouts.main')
+index.php
 
-@section('container')
-<...isi html...>
-@endsection
+    *panggil file main
+    @extends('dashboard.layouts.main')
+
+    @section('container')
+    <...isi html...>
+    @endsection
 
 ----------------------------------------------------------------
 
 *tampilkan page active
-{{ Request::is ('dashboard/posts*') ? 'active' : '' }}
+    {{ Request::is ('dashboard/posts*') ? 'active' : '' }}
 
 ----------------------------------------------------------------
 
 *pesan error pada form/bootstrap
--return redirect('/dashboard/posts')->with('success', 'New Post Added');
+    return redirect('/dashboard/posts')->with('success', 'New Post Added');
 
--@if(session()->has('success'))
-	<div class="alert alert-success alert-dismissible fade show" role="alert">
-  	{{ session('success') }}
-  	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-	</div>
- @endif
+    @if(session()->has('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
 ----------------------------------------------------------------
 
 *js delete button
-onclick="return confirm('Are Yout Sure?')"
+    onclick="return confirm('Are Yout Sure?')"
 
 ----------------------------------------------------------------
 
 *cara mudah $++ iteration
-{{ $loop->iteration }}
+    {{ $loop->iteration }}
 
 ----------------------------------------------------------------
 
@@ -101,20 +98,19 @@ onclick="return confirm('Are Yout Sure?')"
 
 *hapus image pas update dan hapus post
 
-if($request->oldImage){
-    Storage::delete($request->oldImage);
-}
+    if($request->oldImage){
+        Storage::delete($request->oldImage);
+    }
 
 ----------------------------------------------------------------
 
-*cara tampilkan post not found
-	- letakan ini dipaling bawah
+*cara tampilkan post not found letakan ini dipaling bawah
 
-@if ($posts->count() > 0)
-	isi tampilan.....
-@else
-	echo "post not found"
-@endif
+    @if ($posts->count() > 0)
+        isi tampilan.....
+    @else
+        echo "post not found"
+    @endif
 
 ----------------------------------------------------------------
 
@@ -178,9 +174,8 @@ if($request->oldImage){
 
 =============================================================================================
 @collection : pembungkus array (agar bisa pakai function)
-ex. $data = collect(['spatu', baju]);
-
-return $data = first(index, key)
+    ex. $data = collect(['spatu', baju]);
+        return $data = first(index, key)
 
     *memanggil collection pda <html> ada 2 notasi
     1. {{ $user['id'] }} ->sbg array
@@ -193,25 +188,26 @@ return $data = first(index, key)
         {!! $post->body !!}
 
 
-self:: -> memanggil property static
-static:: -> memanggil method static
+    self:: -> memanggil property static
+    static:: -> memanggil method static
 
 
 =============================================================================================
 @controller : semua subController harus extends dari class utama (Controller.php)
 
-route -> Route::get('/, [HomeController::class, 'index']');
+    route -> Route::get('/, [HomeController::class, 'index']');
 
-class -> class HomeController extends Controller{
-            public function index(){
-                return view('home',[
-                    'title' => 'home'
-                ])
-            }
-}
+    class -> class HomeController extends Controller{
+                public function index(){
+                    return view('home',[
+                        'title' => 'home'
+                    ])
+                }
+    }
 
 =============================================================================================
 @migration : melacak perubahan pda database
+
     *kita bisa buat schema/table buat manual di dbms ckup buat nama db saja
     yang terhubung dg Model/user.php, UserFactory.php, user_table.php
 
@@ -221,7 +217,6 @@ class -> class HomeController extends Controller{
         database/factories/Userfactory.php ->membuat data db faker()
 
     *data pda table ini sudah berbentuk collection()
-    *
 
 =============================================================================================
 @database seeder : DatabaseSeeder.php
@@ -247,13 +242,14 @@ class -> class HomeController extends Controller{
             ];
         }
 
-    *cara jakankan
+    *cara jalankan
      -saat migration : php artisan migrate:fresh --seed
      -saat biasa : php artisan db:seed
 
 
 =============================================================================================
-@n+1 problem : masalh muncul saat relationship melakukan looping berulang(lazy loadind)
+@n+1 problem : masalh muncul saat relationship melakukan looping berulang(lazy loading)
+
         *cara atasinya tambah with(eager loading) pda controller/clousure(function pda route)
             "posts"=>Post::with(['user','category'])->latest();
         
@@ -270,20 +266,18 @@ class -> class HomeController extends Controller{
     *untuk tangkap | ?search= | pada get/url
     tepatnya pda method yg me return view dari post(PostController)
 
-    public function index(){
-        $post = Post::latest()
+    $posts = Post::latest();
 
         if(request('search')){
-            $post->where('title', 'like', '%' . request('search')
+            $posts->where('title', 'like', '%' . request('search') . '%')
             ->orWhere('body', 'like', '%' . request('search') . '%');
         }
 
-            return view('post',[
-                'post'=>$post->get();
-            ])
-            )
-        }
-    }
+        return view('posts', [
+            "title" => "All Posts",
+            "posts" => $posts->paginate(7)
+        ]);
+    
 
 =============================================================================================
 @pagination
@@ -324,7 +318,7 @@ class -> class HomeController extends Controller{
         User::create($validatedData);
 
         return redirect('/login')->with('success', 'Success !');
-
+    }
 
 =============================================================================================
 @form validation
@@ -366,8 +360,8 @@ class -> class HomeController extends Controller{
 
     }
  
-
-    +++ Illuminate\Support\Facades\Auth;
+    *tambahkan namespace ini
+        Illuminate\Support\Facades\Auth;
 
     *ganti di app/providers/RouteServiceProvider.php
         public const HOME = '/'
@@ -449,3 +443,4 @@ class -> class HomeController extends Controller{
     
 =============================================================================================
 @autorization
+
